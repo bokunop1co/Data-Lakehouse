@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  schema: "gold",
+  bigquery: {
+    partitionBy: "rate_date",
+    clusterBy: ["currency_code"]
+  },
+  description: "Daily ARS exchange rate per currency with day-over-day variation.",
+  assertions: {
+    nonNull: ["rate_date", "currency_code", "ars_rate"],
+    uniqueKey: ["rate_date", "currency_code"]
+  }
+}
+
+SELECT
+  rate_date,
+  currency_code,
+  currency_name,
+  ars_rate,
+  LAG(ars_rate) OVER w AS prev_ars_rate,
+  ars_rate - LAG(ars_rate) OVER w AS abs_change,
+  -- SAFE_DIVIDE avoids division by zero (e.g. the ARS row itself has rate 0).
+  SAFE_DIVIDE(ars_rate - LAG(ars_rate) OVER w, LAG(ars_rate) OVER w) * 100 AS pct_change
+FROM ${ref("stg_bcra_fx")}
+-- LAG is over the previous *available* quotation, so weekends/holidays are skipped.
+WINDOW w AS (PARTITION BY currency_code ORDER BY rate_date)

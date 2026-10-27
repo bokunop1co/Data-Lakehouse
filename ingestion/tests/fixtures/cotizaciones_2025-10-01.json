@@ -1,0 +1,56 @@
+{
+  "status": 200,
+  "results": {
+    "fecha": "2025-10-01",
+    "detalle": [
+      {
+        "codigoMoneda": "ARS",
+        "descripcion": "PESO",
+        "tipoPase": 0.000703,
+        "tipoCotizacion": 0.0
+      },
+      {
+        "codigoMoneda": "AUD",
+        "descripcion": "DOLAR AUSTRALIA",
+        "tipoPase": 0.6609,
+        "tipoCotizacion": 940.4607
+      },
+      {
+        "codigoMoneda": "AWG",
+        "descripcion": "FLORIN (ANTILLAS HOLANDESAS)",
+        "tipoPase": 0.558659,
+        "tipoCotizacion": 794.972067
+      },
+      {
+        "codigoMoneda": "BOB",
+        "descripcion": "BOLIVIANOS",
+        "tipoPase": 0.144267,
+        "tipoCotizacion": 205.291708
+      },
+      {
+        "codigoMoneda": "BRL",
+        "descripcion": "REAL",
+        "tipoPase": 0.187515,
+        "tipoCotizacion": 266.83418
+      },
+      {
+        "codigoMoneda": "CAD",
+        "descripcion": "DOLAR CANADIEN.",
+        "tipoPase": 0.717051,
+        "tipoCotizacion": 1020.364262
+      },
+      {
+        "codigoMoneda": "CHF",
+        "descripcion": "FRANCO SUIZO",
+        "tipoPase": 1.253133,
+        "tipoCotizacion": 1783.20802
+      },
+      {
+        "codigoMoneda": "CLP",
+        "descripcion": "PESO CHILENO",
+        "tipoPase": 0.001042,
+        "tipoCotizacion": 1.482214
+      }
+    ]
+  }
+}

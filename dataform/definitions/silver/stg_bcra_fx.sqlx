@@ -1,0 +1,42 @@
+config {
+  type: "incremental",
+  schema: "silver",
+  uniqueKey: ["rate_date", "currency_code"],
+  bigquery: {
+    partitionBy: "rate_date"
+  },
+  description: "Typed, deduplicated BCRA exchange rates. One row per (rate_date, currency_code).",
+  columns: {
+    rate_date: "Business date of the quotation",
+    currency_code: "ISO-like currency code from BCRA (codigoMoneda)",
+    usd_parity: "Currency value in USD (BCRA tipoPase)",
+    ars_rate: "Quotation in ARS (BCRA tipoCotizacion)"
+  },
+  assertions: {
+    nonNull: ["rate_date", "currency_code", "ars_rate"],
+    uniqueKey: ["rate_date", "currency_code"],
+    rowConditions: ["ars_rate >= 0", "usd_parity >= 0"]
+  }
+}
+
+WITH src AS (
+  SELECT
+    dt AS rate_date,
+    UPPER(TRIM(currency_code)) AS currency_code,
+    TRIM(currency_name) AS currency_name,
+    CAST(tipo_pase AS NUMERIC) AS usd_parity,
+    CAST(tipo_cotizacion AS NUMERIC) AS ars_rate,
+    ingested_at
+  FROM ${ref("bcra_fx_raw")}
+  ${when(incremental(),
+    // Re-read the last 7 days so late corrections from BCRA are merged via uniqueKey.
+    `WHERE dt >= DATE_SUB((SELECT MAX(rate_date) FROM ${self()}), INTERVAL 7 DAY)`)}
+)
+
+SELECT * EXCEPT (ingested_at)
+FROM src
+-- The same day can be ingested more than once; keep the latest load.
+QUALIFY ROW_NUMBER() OVER (
+  PARTITION BY rate_date, currency_code
+  ORDER BY ingested_at DESC
+) = 1

@@ -1,0 +1,9 @@
+config {
+  type: "assertion",
+  description: "Fails if any currency moves more than 50% in one quotation step (likely bad data)."
+}
+
+-- An assertion passes when it returns zero rows.
+SELECT rate_date, currency_code, pct_change
+FROM ${ref("fx_daily_variation")}
+WHERE ABS(pct_change) > 50

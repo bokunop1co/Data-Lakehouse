@@ -1,0 +1,9 @@
+# Dataform core 3.x uses workflow_settings.yaml (dataform.json is the legacy format).
+# Replace defaultProject / bronze_bucket with your values (or override at run time).
+dataformCoreVersion: 3.0.0
+defaultProject: your-gcp-project-id
+defaultLocation: southamerica-east1
+defaultDataset: silver
+defaultAssertionDataset: dataform_assertions
+vars:
+  bronze_bucket: your-gcp-project-id-lakehouse-bronze

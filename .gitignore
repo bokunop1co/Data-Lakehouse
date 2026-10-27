@@ -1,0 +1,29 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+crash.log
+.terraform.lock.hcl.bak
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Local data and credentials
+data/
+*.parquet
+.env
+*credentials*.json
+*service-account*.json
+.config/gcloud/
+
+# Dataform
+dataform/node_modules/
+dataform/.df-credentials.json

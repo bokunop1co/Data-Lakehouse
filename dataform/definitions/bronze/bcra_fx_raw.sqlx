@@ -1,0 +1,20 @@
+config {
+  type: "operations",
+  hasOutput: true,
+  schema: "bronze",
+  name: "bcra_fx_raw",
+  description: "External table over bronze Parquet files in GCS (hive partitioned by dt)."
+}
+
+-- Dataform has no native external table type, so an operation creates it.
+-- hasOutput: true lets other models use ${ref("bcra_fx_raw")}.
+-- Note: this is a plain external table. Upgrading to BigLake needs a
+-- CONNECTION and is listed in the README roadmap.
+CREATE OR REPLACE EXTERNAL TABLE ${self()}
+WITH PARTITION COLUMNS (dt DATE)
+OPTIONS (
+  format = 'PARQUET',
+  uris = ['gs://${dataform.projectConfig.vars.bronze_bucket}/bcra_fx/*'],
+  hive_partition_uri_prefix = 'gs://${dataform.projectConfig.vars.bronze_bucket}/bcra_fx',
+  require_hive_partition_filter = false
+)
