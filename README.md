@@ -61,17 +61,29 @@ flowchart LR
 
 ## Metrics
 
-Fill these after running the pipeline.
+Measured on a **local run** (no GCP project): real BCRA data ingested to Parquet, silver/gold logic
+replayed in DuckDB, and the benchmark sized with BigQuery's documented logical byte model
+(DATE/FLOAT64 = 8 B, STRING = 2 B + length) with partition pruning on `rate_date`. These are
+modeled estimates, not BigQuery job statistics. Reproduce with `make ingest-dry START=2025-07-01 END=2025-09-30`
+then `make local-metrics`. Re-run `benchmark.py` with `--project` to replace them with dry-run numbers.
 
-| Metric                                          | Value |
-|-------------------------------------------------|-------|
-| Days ingested / date range                      | TBD   |
-| Rows in bronze / silver / gold                  | TBD   |
-| Bytes scanned, flat table (1 month, 1 currency) | TBD   |
-| Bytes scanned, partitioned + clustered          | TBD   |
-| Reduction in bytes scanned                      | TBD   |
-| Monthly cost (from billing report)              | TBD   |
-| Dataform assertions passing                     | TBD   |
+| Metric                                                  | Value |
+|---------------------------------------------------------|-------|
+| Days ingested / date range                              | 64 business days with data, 2025-07-01 to 2025-09-30 (92 calendar days) |
+| Rows in bronze / silver / gold                          | 2,496 / 2,496 / 2,496 (39 currencies) |
+| Bytes scanned, flat table (1 month, 1 currency)         | 13.26 MB (full scan of 602,700 synthetic rows) |
+| Bytes scanned, partitioned (1 month, 1 currency)        | 0.099 MB (30 partitions x 150 rows) |
+| Reduction in bytes scanned (1 month, 1 currency)        | 99.3% |
+| Reduction in bytes scanned (1 year, all currencies)     | 90.9% (13.26 MB to 1.20 MB) |
+| Monthly cost (from billing report)                      | Not measured (local run) |
+| Assertions passing                                      | 5 of 6: `no_extreme_daily_moves` fails on RUB, see below |
+
+Clustering by `currency_code` is not reflected in these numbers: BigQuery dry runs report an
+upper bound for clustered tables, so the real billed bytes for the one-currency query would be lower.
+
+**Data quality finding.** `no_extreme_daily_moves` flags RUB on 2025-09-01 (+50.3%). The cause is
+upstream: BCRA published an outlier on 2025-08-29 (`tipoCotizacion` 11.31 vs about 16.5 on the
+days around it), and the next day's correction trips the 50% threshold. The assertion is doing its job.
 
 ## Development
 

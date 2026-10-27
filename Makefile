@@ -3,7 +3,7 @@ BUCKET  ?= $(PROJECT)-lakehouse-bronze
 START   ?= 2025-01-01
 END     ?= 2025-01-31
 
-.PHONY: install fmt lint test tf-validate ingest-dry ingest benchmark
+.PHONY: install fmt lint test tf-validate ingest-dry ingest local-metrics benchmark
 
 install:
 	pip install -r ingestion/requirements-dev.txt -r sql/benchmarks/requirements.txt
@@ -28,6 +28,9 @@ ingest-dry:
 
 ingest:
 	cd ingestion/src && python -m bcra_ingest.cli --start $(START) --end $(END) --bucket $(BUCKET) --out-dir ../../data
+
+local-metrics:
+	python sql/benchmarks/local_metrics.py
 
 benchmark:
 	python sql/benchmarks/benchmark.py --project $(PROJECT) --dataset gold
